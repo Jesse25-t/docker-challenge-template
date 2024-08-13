@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    build: ./docker/db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: booksdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+
+  api:
+    build: ./docker/api
+    environment:
+      DB_HOST: db
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      DB_DATABASE: booksdb
+    deploy:
+      replicas: 3  # Scale to 3 instances
+    depends_on:
+      - db
+
+  nginx:
+    build: ./docker/nginx  # Update to build the image locally
+    ports:
+      - "8080:80"
+    # volumes:
+    #   - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
